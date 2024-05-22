@@ -1,109 +1,78 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
-
 import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
-
 import 'package:test_task_finstar/views/view_results.dart';
-
-
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class LoanCalculatorView extends StatelessWidget {
-
-  final LoanCalculatorController controller = Get.put(LoanCalculatorController());
-
-
+  final ControllerLoanCalculator controller = Get.find();
 
   @override
-
   Widget build(BuildContext context) {
 
     return Scaffold(
-
       appBar: AppBar(
-
-        title: Text("Loan Calculator"),
-
+        title: Text("Loan Calculator", style: TextStyle(fontFamily: 'SFProText', fontSize: 20.sp)),
       ),
 
       body: Padding(
+        padding: EdgeInsets.all(16.w),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              TextField(
+                decoration: InputDecoration(labelText: "Loan Amount"),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => controller.loanAmount.value = double.parse(value),
+                style: TextStyle(fontFamily: 'SFProText', fontSize: 16.sp),
+              ),
 
-        padding: const EdgeInsets.all(16.0),
+              SizedBox(height: 16.h),
 
-        child: Column(
+              TextField(
+                decoration: InputDecoration(labelText: "Interest Rate (%)"),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => controller.interestRate.value = double.parse(value),
+                style: TextStyle(fontFamily: 'SFProText', fontSize: 16.sp),
+              ),
 
-          children: [
+              SizedBox(height: 16.h),
 
-            TextField(
+              TextField(
+                decoration: InputDecoration(labelText: "Loan Term (months)"),
+                keyboardType: TextInputType.number,
+                onChanged: (value) => controller.loanTerm.value = int.parse(value),
+                style: TextStyle(fontFamily: 'SFProText', fontSize: 16.sp),
+              ),
 
-              decoration: InputDecoration(labelText: "Loan Amount"),
+              SizedBox(height: 16.h),
 
-              keyboardType: TextInputType.number,
+              Row(
+                children: [
+                  Obx(() => Checkbox(
+                    value: controller.isAnnuity.value,
+                    onChanged: (value) => controller.isAnnuity.value = value!,
+                  )),
+                  Text("Annuity Payment", style: TextStyle(fontFamily: 'SFProText', fontSize: 16.sp)),
+                ],
+              ),
 
-              onChanged: (value) => controller.loanAmount.value = double.parse(value),
+              SizedBox(height: 16.h),
 
-            ),
-
-            TextField(
-
-              decoration: InputDecoration(labelText: "Interest Rate (%)"),
-
-              keyboardType: TextInputType.number,
-
-              onChanged: (value) => controller.interestRate.value = double.parse(value),
-
-            ),
-
-            TextField(
-
-              decoration: InputDecoration(labelText: "Loan Term (months)"),
-
-              keyboardType: TextInputType.number,
-
-              onChanged: (value) => controller.loanTerm.value = int.parse(value),
-
-            ),
-
-            Row(
-
-              children: [
-
-                Obx(() => Checkbox(
-
-                  value: controller.isAnnuity.value,
-
-                  onChanged: (value) => controller.isAnnuity.value = value!,
-
-                )),
-
-                Text("Annuity Payment"),
-
-              ],
-
-            ),
-
-            ElevatedButton(
-
-              onPressed: () {
-
-                controller.calculate();
-
-                Get.to(() => ResultsView());
-
-              },
-
-              child: Text("Calculate"),
-
-            ),
-
-          ],
-
+              ElevatedButton(
+                onPressed: () {
+                  controller.calculate();
+                  Get.to(() => ResultsView());
+                },
+                child: Text("Calculate", style: TextStyle(fontFamily: 'SFProText', fontSize: 16.sp)),
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 16.h),
+                ),
+              ),
+            ],
+          ),
         ),
-
       ),
-
     );
-
   }
-
 }
