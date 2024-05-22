@@ -31,7 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   get: ^4.6.5
-  flutter_screenutil: ^5.0.0+2
+  syncfusion_flutter_charts: ^20.2.49
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -72,7 +72,7 @@ flutter:
   fonts:
     - family: SFProText
       fonts:
-        - asset: assets/fonts/SFProText-Regular.ttf
+        - asset: assets/fonts/SFProText-Medium.ttf
   assets:
     - assets/fonts/
   # To add custom fonts to your application, add a fonts section here,
