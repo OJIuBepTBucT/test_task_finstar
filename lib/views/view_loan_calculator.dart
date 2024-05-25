@@ -2,28 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:test_task_finstar/controller/controller_history.dart';
 import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
-import 'package:test_task_finstar/model/model_loan_result_history.dart';
-import 'package:test_task_finstar/views/view_result_history.dart';
-import 'package:test_task_finstar/views/view_results.dart';
 import 'package:flutter/services.dart';
+import 'package:test_task_finstar/model/model_loan_result_history.dart';
 
 class LoanCalculatorView extends StatelessWidget {
-  final ControllerLoanCalculator loanController = Get.find();
-  final HistoryController historyController = Get.find();
+  final ControllerLoanCalculator loanController =
+  Get.put(ControllerLoanCalculator());
+  final HistoryController historyController = Get.put(HistoryController());
+  final TextEditingController loanAmountController = TextEditingController();
+  final TextEditingController interestRateController = TextEditingController();
+  final TextEditingController loanTermController = TextEditingController();
+
+  LoanCalculatorView({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textStyle = theme.textTheme.bodyMedium!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "Loan Calculator",
-          style: TextStyle(fontFamily: 'SFProText', fontSize: 20),
-        ),
+        title: Text('loan_calculator'.tr, style: theme.textTheme.bodyLarge),
         actions: [
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
-              Get.to(() => HistoryView());
+              Get.toNamed('/history');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () {
+              _showLanguageDialog(context);
             },
           ),
         ],
@@ -34,132 +44,180 @@ class LoanCalculatorView extends StatelessWidget {
           child: Column(
             children: [
               TextField(
+                controller: loanAmountController,
                 decoration: InputDecoration(
-                  labelText: "Loan Amount",
-                  labelStyle:
-                  const TextStyle(fontFamily: 'SFProText', fontSize: 16),
+                  labelText: 'loan_amount'.tr,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10,
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(11)
+                  LengthLimitingTextInputFormatter(11),
                 ],
                 onChanged: (value) {
-                  loanController.loanAmount.value =
-                      double.tryParse(value) ?? 0.0;
+                  double loanAmount = double.tryParse(value) ?? 0.0;
+                  loanController.loanAmount.value = loanAmount;
                   loanController.checkFormValidity();
                 },
-                style: const TextStyle(fontFamily: 'SFProText', fontSize: 16),
+                style: textStyle,
               ),
 
               const SizedBox(height: 16),
 
               TextField(
+                controller: interestRateController,
                 decoration: InputDecoration(
-                  labelText: "Interest Rate (%)",
-                  labelStyle:
-                  const TextStyle(fontFamily: 'SFProText', fontSize: 16),
+                  labelText: 'interest_rate'.tr,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10,
+                  ),
                 ),
                 keyboardType: TextInputType.number,
                 inputFormatters: [
                   FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3)
+                  LengthLimitingTextInputFormatter(2),
                 ],
                 onChanged: (value) {
-                  loanController.interestRate.value =
-                      double.tryParse(value) ?? 0.0;
-                  loanController.checkFormValidity();
-                },
-                style: const TextStyle(fontFamily: 'SFProText', fontSize: 16),
-              ),
-
-              const SizedBox(height: 16),
-
-              TextField(
-                decoration: InputDecoration(
-                  labelText: "Loan Term (months)",
-                  labelStyle:
-                  const TextStyle(fontFamily: 'SFProText', fontSize: 16),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding:
-                  const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3)
-                ],
-                onChanged: (value) {
-                  loanController.loanTerm.value = int.tryParse(value) ?? 0;
-                  loanController.checkFormValidity();
-                },
-                style: const TextStyle(fontFamily: 'SFProText', fontSize: 16),
-              ),
-
-              const SizedBox(height: 16),
-
-              Row(
-                children: [
-                  Obx(
-                        () => Checkbox(
-                      value: loanController.isAnnuity.value,
-                      onChanged: (value) => loanController.isAnnuity.value = value!,
-                    ),
-                  ),
-                  const Text(
-                    "Annuity Payment",
-                    style: TextStyle(fontFamily: 'SFProText', fontSize: 16),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              Obx(
-                    () => ElevatedButton(
-                  onPressed: loanController.isFormValid.value
-                      ? () {
-                    loanController.calculate();
-                    historyController.addHistory(
-                      CalculationHistory(
-                        loanAmount: loanController.loanAmount.value,
-                        interestRate: loanController.interestRate.value,
-                        loanTerm: loanController.loanTerm.value,
-                        isAnnuity: loanController.isAnnuity.value,
-                        loanResult: loanController.loanResult.value!,
-                        dateTime: DateTime.now(),
+                  double interestRate = double.tryParse(value) ?? 0.0;
+                  if (interestRate > 70) {
+                    interestRate = 70;
+                    interestRateController.text = '70';
+                    interestRateController.selection =
+                        TextSelection.fromPosition(
+                      TextPosition(offset: interestRateController.text.length
                       ),
                     );
-                    Get.to(() => ResultsView());
                   }
-                      : null,
+                  loanController.interestRate.value = interestRate;
+                  loanController.checkFormValidity();
+                },
+                style: textStyle,
+              ),
 
-                  child: const Text(
-                    "Calculate",
-                    style: TextStyle(fontFamily: 'SFProText', fontSize: 16),
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: loanTermController,
+                decoration: InputDecoration(
+                  labelText: 'loan_term'.tr,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10,
                   ),
                 ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(3),
+                ],
+                onChanged: (value) {
+                  int loanTerm = int.tryParse(value) ?? 0;
+                  if (loanTerm > 500) {
+                    loanTerm = 500;
+                    loanTermController.text = '500';
+                    loanTermController.selection = TextSelection.fromPosition(
+                      TextPosition(offset: loanTermController.text.length),
+                    );
+                  }
+                  loanController.loanTerm.value = loanTerm;
+                  loanController.checkFormValidity();
+                },
+                style: textStyle,
               ),
+
+              const SizedBox(height: 16),
+
+              GestureDetector(
+                onTap: () {
+                  loanController.isAnnuity.value =
+                  !loanController.isAnnuity.value;
+                },
+                child: Row(
+                  children: [
+                    Obx(() => Checkbox(
+                      value: loanController.isAnnuity.value,
+                      onChanged: (value) =>
+                      loanController.isAnnuity.value = value!,
+                    )),
+                    Text('annuity_payment'.tr, style: textStyle),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              Obx(() {
+                if (loanController.isLoading.value) {
+                  return const CircularProgressIndicator();
+                }
+
+                return ElevatedButton(
+                  onPressed: loanController.isFormValid.value
+                      ? () async {
+                    await loanController.calculate();
+                    historyController.addHistory(CalculationHistory(
+                      loanAmount: loanController.loanAmount.value,
+                      interestRate: loanController.interestRate.value,
+                      loanTerm: loanController.loanTerm.value,
+                      isAnnuity: loanController.isAnnuity.value,
+                      loanResult: loanController.loanResult.value!,
+                      dateTime: DateTime.now(),
+                    ));
+                    Get.toNamed('/results');
+                  } : null,
+                  child: Text('calculate'.tr, style: textStyle),
+                );
+              }),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+              'Choose Language', style: Theme.of(context).textTheme.bodyLarge),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: Text(
+                    'English', style: Theme.of(context).textTheme.bodyMedium),
+                onTap: () {
+                  Get.updateLocale(const Locale('en', 'US'));
+                  Get.back();
+                },
+              ),
+              ListTile(
+                title: Text(
+                    'Русский', style: Theme.of(context).textTheme.bodyMedium),
+                onTap: () {
+                  Get.updateLocale(const Locale('ru', 'RU'));
+                  Get.back();
+                },
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

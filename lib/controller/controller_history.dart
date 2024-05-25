@@ -22,7 +22,8 @@ class HistoryController extends GetxController {
   Future<void> saveHistory() async {
     if (_prefs == null) return;
     try {
-      final List<String> historyList = calculationHistory.map((history) =>
+      final List<String> historyList =
+      calculationHistory.map((history) =>
           jsonEncode(history.toJson())).toList();
       await _prefs!.setStringList('calculationHistory', historyList);
     } catch (e) {
@@ -36,15 +37,14 @@ class HistoryController extends GetxController {
       final List<String>? historyList =
       _prefs!.getStringList('calculationHistory');
       if (historyList != null) {
-        calculationHistory.value = historyList.map((item) =>
-            CalculationHistory.fromJson(jsonDecode(item))).toList();
+        calculationHistory.value =
+            historyList.map((item) =>
+                CalculationHistory.fromJson(jsonDecode(item))).toList();
       }
     } catch (e) {
       Get.snackbar('Error', 'Failed to load history');
     }
   }
-
-
 
   void deleteHistoryItem(int index) {
     calculationHistory.removeAt(index);
@@ -56,8 +56,10 @@ class HistoryController extends GetxController {
   void clearAllHistory() {
     calculationHistory.clear();
     saveHistory();
-    Get.snackbar('History Cleared', 'All calculation history has been cleared',
-        snackPosition: SnackPosition.BOTTOM);
+    Get.snackbar(
+        'History Cleared', 'All calculation history has been cleared',
+        snackPosition: SnackPosition.BOTTOM
+    );
   }
 
   void addHistory(CalculationHistory history) {

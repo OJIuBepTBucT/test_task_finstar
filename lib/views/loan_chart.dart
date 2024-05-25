@@ -6,70 +6,93 @@ import 'package:test_task_finstar/model/model_loan_result.dart';
 
 class LoanChart extends StatelessWidget {
   final ControllerLoanCalculator controller = Get.find();
+  final int currentPage;
+
+  LoanChart({super.key, required this.currentPage});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textStyle = theme.textTheme.bodyMedium!;
+
     return Obx(() {
       if (controller.loanResult.value == null) {
         return Center(
           child: Text(
-            "No results",
-            style: TextStyle(fontFamily: 'SFProText', fontSize: 16),
+            'no_results'.tr,
+            style: textStyle,
           ),
         );
       }
 
-      final List<PaymentDetail> paymentDetails = controller.loanResult.value!.paymentDetails.reversed.toList();
+      List<PaymentDetail> paymentDetails =
+      controller.loanResult.value!.paymentDetails
+
+          .where(
+              (detail) =>
+              detail.year == (
+                  controller.loanResult.value!.paymentDetails.first.year +
+                      currentPage)
+      ).toList();
+
+      paymentDetails.sort((a, b) => a.month.compareTo(b.month));
+      paymentDetails = paymentDetails.reversed.toList();
 
       return SingleChildScrollView(
         scrollDirection: Axis.vertical,
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Container(
-            height: paymentDetails.length * 90.0, // Adjust height as needed
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: SizedBox(
+            height: paymentDetails.length * 90.0,
             child: SfCartesianChart(
               primaryXAxis: CategoryAxis(
                 labelPlacement: LabelPlacement.onTicks,
-                majorGridLines: MajorGridLines(width: 0),
+                majorGridLines: const MajorGridLines(width: 0),
                 edgeLabelPlacement: EdgeLabelPlacement.shift,
-                labelStyle: TextStyle(fontFamily: 'SFProText', fontSize: 14),
+                labelStyle: textStyle,
               ),
               primaryYAxis: NumericAxis(
                 labelFormat: '{value} ₽',
-                majorGridLines: MajorGridLines(width: 0.5),
-                labelStyle: TextStyle(fontFamily: 'SFProText', fontSize: 14),
+                majorGridLines: const MajorGridLines(width: 0.5),
+                labelStyle: textStyle,
               ),
               title: ChartTitle(
-                text: 'Диаграмма выплаты процентов',
-                textStyle: TextStyle(fontFamily: 'SFProText', fontSize: 18, fontWeight: FontWeight.bold),
+                text: 'interest_diagram'.tr,
+                textStyle:
+                theme.textTheme.bodyLarge!.copyWith(
+                    fontWeight: FontWeight.bold
+                ),
               ),
               legend: Legend(
                 isVisible: true,
                 position: LegendPosition.bottom,
-                textStyle: TextStyle(fontFamily: 'SFProText', fontSize: 14),
+                textStyle: textStyle,
               ),
-              tooltipBehavior: TooltipBehavior(enable: true, textStyle: TextStyle(fontFamily: 'SFProText', fontSize: 12)),
+              tooltipBehavior:
+              TooltipBehavior(enable: true, textStyle: textStyle),
               series: <ChartSeries>[
                 StackedBarSeries<PaymentDetail, String>(
                   dataSource: paymentDetails,
                   yValueMapper: (PaymentDetail pd, _) => pd.principal,
-                  xValueMapper: (PaymentDetail pd, _) => 'МЕС' + pd.month.toString(),
-                  name: 'Погашение кредита',
+                  xValueMapper: (PaymentDetail pd, _) =>
+                  '${'month'.tr} ${pd.month}',
+                  name: 'principal'.tr,
                   color: Colors.blue,
                   dataLabelSettings: DataLabelSettings(
                     isVisible: false,
-                    textStyle: TextStyle(fontFamily: 'SFProText', fontSize: 12),
+                    textStyle: textStyle,
                   ),
                 ),
                 StackedBarSeries<PaymentDetail, String>(
                   dataSource: paymentDetails,
                   yValueMapper: (PaymentDetail pd, _) => pd.interest,
-                  xValueMapper: (PaymentDetail pd, _) => 'МЕС' + pd.month.toString(),
-                  name: 'Погашение процентов',
+                  xValueMapper: (PaymentDetail pd, _) =>
+                  '${'month'.tr} ${pd.month}',
+                  name: 'interest'.tr,
                   color: Colors.red,
                   dataLabelSettings: DataLabelSettings(
                     isVisible: false,
-                    textStyle: TextStyle(fontFamily: 'SFProText', fontSize: 12),
+                    textStyle: textStyle,
                   ),
                 ),
               ],

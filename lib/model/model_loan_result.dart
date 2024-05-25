@@ -1,3 +1,35 @@
+class PaymentDetail {
+  final int month;
+  final double principal;
+  final double interest;
+  final int year;
+
+  PaymentDetail({
+    required this.month,
+    required this.principal,
+    required this.interest,
+    required this.year,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'month': month,
+      'principal': principal,
+      'interest': interest,
+      'year': year,
+    };
+  }
+
+  factory PaymentDetail.fromJson(Map<String, dynamic> json) {
+    return PaymentDetail(
+      month: json['month'],
+      principal: json['principal'],
+      interest: json['interest'],
+      year: json['year'],
+    );
+  }
+}
+
 class LoanResult {
   final double monthlyPayment;
   final double totalPayment;
@@ -28,34 +60,6 @@ class LoanResult {
       paymentDetails: (json['paymentDetails'] as List)
           .map((pd) => PaymentDetail.fromJson(pd))
           .toList(),
-    );
-  }
-}
-
-class PaymentDetail {
-  final int month;
-  final double principal;
-  final double interest;
-
-  PaymentDetail({
-    required this.month,
-    required this.principal,
-    required this.interest,
-  });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'month': month,
-      'principal': principal,
-      'interest': interest,
-    };
-  }
-
-  factory PaymentDetail.fromJson(Map<String, dynamic> json) {
-    return PaymentDetail(
-      month: json['month'],
-      principal: json['principal'],
-      interest: json['interest'],
     );
   }
 }
