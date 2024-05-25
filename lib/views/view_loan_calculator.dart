@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:test_task_finstar/controller/controller_history.dart';
-import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
+import 'package:test_task_finstar/controllers/controller_history.dart';
+import 'package:test_task_finstar/controllers/controller_loan_calculator.dart';
 import 'package:flutter/services.dart';
 import 'package:test_task_finstar/model/model_loan_result_history.dart';
 
@@ -9,16 +9,12 @@ class LoanCalculatorView extends StatelessWidget {
   final ControllerLoanCalculator loanController =
   Get.put(ControllerLoanCalculator());
   final HistoryController historyController = Get.put(HistoryController());
-  final TextEditingController loanAmountController = TextEditingController();
-  final TextEditingController interestRateController = TextEditingController();
-  final TextEditingController loanTermController = TextEditingController();
 
   LoanCalculatorView({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final textStyle = theme.textTheme.bodyMedium!;
 
     return Scaffold(
       appBar: AppBar(
@@ -43,144 +39,26 @@ class LoanCalculatorView extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              TextField(
-                controller: loanAmountController,
-                decoration: InputDecoration(
-                  labelText: 'loan_amount'.tr,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 10,
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(11),
-                ],
-                onChanged: (value) {
-                  double loanAmount = double.tryParse(value) ?? 0.0;
-                  loanController.loanAmount.value = loanAmount;
-                  loanController.checkFormValidity();
-                },
-                style: textStyle,
-              ),
+              LoanAmountField(loanController: loanController),
 
               const SizedBox(height: 16),
 
-              TextField(
-                controller: interestRateController,
-                decoration: InputDecoration(
-                  labelText: 'interest_rate'.tr,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 10,
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(2),
-                ],
-                onChanged: (value) {
-                  double interestRate = double.tryParse(value) ?? 0.0;
-                  if (interestRate > 70) {
-                    interestRate = 70;
-                    interestRateController.text = '70';
-                    interestRateController.selection =
-                        TextSelection.fromPosition(
-                      TextPosition(offset: interestRateController.text.length
-                      ),
-                    );
-                  }
-                  loanController.interestRate.value = interestRate;
-                  loanController.checkFormValidity();
-                },
-                style: textStyle,
-              ),
+              InterestRateField(loanController: loanController),
 
               const SizedBox(height: 16),
 
-              TextField(
-                controller: loanTermController,
-                decoration: InputDecoration(
-                  labelText: 'loan_term'.tr,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 10,
-                    horizontal: 10,
-                  ),
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  LengthLimitingTextInputFormatter(3),
-                ],
-                onChanged: (value) {
-                  int loanTerm = int.tryParse(value) ?? 0;
-                  if (loanTerm > 500) {
-                    loanTerm = 500;
-                    loanTermController.text = '500';
-                    loanTermController.selection = TextSelection.fromPosition(
-                      TextPosition(offset: loanTermController.text.length),
-                    );
-                  }
-                  loanController.loanTerm.value = loanTerm;
-                  loanController.checkFormValidity();
-                },
-                style: textStyle,
-              ),
+              LoanTermField(loanController: loanController),
 
               const SizedBox(height: 16),
 
-              GestureDetector(
-                onTap: () {
-                  loanController.isAnnuity.value =
-                  !loanController.isAnnuity.value;
-                },
-                child: Row(
-                  children: [
-                    Obx(() => Checkbox(
-                      value: loanController.isAnnuity.value,
-                      onChanged: (value) =>
-                      loanController.isAnnuity.value = value!,
-                    )),
-                    Text('annuity_payment'.tr, style: textStyle),
-                  ],
-                ),
-              ),
+              AnnuityCheckbox(loanController: loanController),
 
               const SizedBox(height: 16),
 
-              Obx(() {
-                if (loanController.isLoading.value) {
-                  return const CircularProgressIndicator();
-                }
-
-                return ElevatedButton(
-                  onPressed: loanController.isFormValid.value
-                      ? () async {
-                    await loanController.calculate();
-                    historyController.addHistory(CalculationHistory(
-                      loanAmount: loanController.loanAmount.value,
-                      interestRate: loanController.interestRate.value,
-                      loanTerm: loanController.loanTerm.value,
-                      isAnnuity: loanController.isAnnuity.value,
-                      loanResult: loanController.loanResult.value!,
-                      dateTime: DateTime.now(),
-                    ));
-                    Get.toNamed('/results');
-                  } : null,
-                  child: Text('calculate'.tr, style: textStyle),
-                );
-              }),
+              CalculateButton(
+                  loanController: loanController,
+                  historyController: historyController
+              ),
             ],
           ),
         ),
@@ -194,13 +72,17 @@ class LoanCalculatorView extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-              'Choose Language', style: Theme.of(context).textTheme.bodyLarge),
+            'Choose Language',
+            style: Theme.of(context).textTheme.bodyLarge,
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
                 title: Text(
-                    'English', style: Theme.of(context).textTheme.bodyMedium),
+                  'English',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 onTap: () {
                   Get.updateLocale(const Locale('en', 'US'));
                   Get.back();
@@ -208,7 +90,9 @@ class LoanCalculatorView extends StatelessWidget {
               ),
               ListTile(
                 title: Text(
-                    'Русский', style: Theme.of(context).textTheme.bodyMedium),
+                  'Русский',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
                 onTap: () {
                   Get.updateLocale(const Locale('ru', 'RU'));
                   Get.back();
@@ -219,5 +103,196 @@ class LoanCalculatorView extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+class LoanAmountField extends StatelessWidget {
+  final ControllerLoanCalculator loanController;
+  final TextEditingController loanAmountController = TextEditingController();
+
+  LoanAmountField({required this.loanController, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!;
+
+    return TextField(
+      controller: loanAmountController,
+      decoration: InputDecoration(
+        labelText: 'loan_amount'.tr,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 10,
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(11),
+      ],
+      onChanged: (value) {
+        double loanAmount = double.tryParse(value) ?? 0.0;
+        loanController.loanAmount.value = loanAmount;
+        loanController.checkFormValidity();
+      },
+      style: textStyle,
+    );
+  }
+}
+
+class InterestRateField extends StatelessWidget {
+  final ControllerLoanCalculator loanController;
+  final TextEditingController interestRateController = TextEditingController();
+
+  InterestRateField({required this.loanController, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!;
+
+    return TextField(
+      controller: interestRateController,
+      decoration: InputDecoration(
+        labelText: 'interest_rate'.tr,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 10,
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(2),
+      ],
+      onChanged: (value) {
+        double interestRate = double.tryParse(value) ?? 0.0;
+        if (interestRate > 70) {
+          interestRate = 70;
+          interestRateController.text = '70';
+          interestRateController.selection = TextSelection.fromPosition(
+            TextPosition(offset: interestRateController.text.length),
+          );
+        }
+        loanController.interestRate.value = interestRate;
+        loanController.checkFormValidity();
+      },
+      style: textStyle,
+    );
+  }
+}
+
+class LoanTermField extends StatelessWidget {
+  final ControllerLoanCalculator loanController;
+  final TextEditingController loanTermController = TextEditingController();
+
+  LoanTermField({required this.loanController, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!;
+    return TextField(
+      controller: loanTermController,
+      decoration: InputDecoration(
+        labelText: 'loan_term'.tr,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          vertical: 10,
+          horizontal: 10,
+        ),
+      ),
+      keyboardType: TextInputType.number,
+      inputFormatters: [
+        FilteringTextInputFormatter.digitsOnly,
+        LengthLimitingTextInputFormatter(3),
+      ],
+      onChanged: (value) {
+        int loanTerm = int.tryParse(value) ?? 0;
+
+        if (loanTerm > 500) {
+          loanTerm = 500;
+          loanTermController.text = '500';
+          loanTermController.selection = TextSelection.fromPosition(
+            TextPosition(offset: loanTermController.text.length),
+          );
+        }
+
+        loanController.loanTerm.value = loanTerm;
+        loanController.checkFormValidity();
+      },
+      style: textStyle,
+    );
+  }
+}
+
+class AnnuityCheckbox extends StatelessWidget {
+  final ControllerLoanCalculator loanController;
+
+  const AnnuityCheckbox({required this.loanController, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!;
+
+    return GestureDetector(
+      onTap: () {
+        loanController.isAnnuity.value = !loanController.isAnnuity.value;
+      },
+      child: Row(
+        children: [
+          Obx(() => Checkbox(
+            value: loanController.isAnnuity.value,
+            onChanged: (value) => loanController.isAnnuity.value = value!,
+          )),
+          Text('annuity_payment'.tr, style: textStyle),
+        ],
+      ),
+    );
+  }
+}
+
+class CalculateButton extends StatelessWidget {
+  final ControllerLoanCalculator loanController;
+  final HistoryController historyController;
+
+  const CalculateButton({
+        required this.loanController, required this.historyController,
+        super.key
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    final textStyle = Theme.of(context).textTheme.bodyMedium!;
+
+    return Obx(() {
+      if (loanController.isLoading.value) {
+        return const CircularProgressIndicator();
+      }
+      return ElevatedButton(
+        onPressed: loanController.isFormValid.value
+            ? () async {
+          await loanController.calculate();
+          historyController.addHistory(
+            CalculationHistory(
+              loanAmount: loanController.loanAmount.value,
+              interestRate: loanController.interestRate.value,
+              loanTerm: loanController.loanTerm.value,
+              isAnnuity: loanController.isAnnuity.value,
+              loanResult: loanController.loanResult.value!,
+              dateTime: DateTime.now(),
+            ),
+          );
+          Get.toNamed('/results');
+        } : null,
+        child: Text('calculate'.tr, style: textStyle),
+      );
+    });
   }
 }

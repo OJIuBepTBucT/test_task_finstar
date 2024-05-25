@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:get/get.dart';
-import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
+import 'package:test_task_finstar/controllers/controller_loan_calculator.dart';
 import 'package:test_task_finstar/model/model_loan_result.dart';
 
 class LoanChart extends StatelessWidget {

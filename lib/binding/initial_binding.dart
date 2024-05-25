@@ -1,6 +1,6 @@
 import 'package:get/get.dart';
-import 'package:test_task_finstar/controller/controller_history.dart';
-import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
+import 'package:test_task_finstar/controllers/controller_history.dart';
+import 'package:test_task_finstar/controllers/controller_loan_calculator.dart';
 
 class InitialBinding extends Bindings {
   @override

@@ -67,7 +67,7 @@ class TranslationsWords extends Translations {
 
     'ru_RU': {
 
-      'loan_calculator': 'Калькулятор кредита',
+      'loan_calculator': 'Кредитный калькулятор',
 
       'loan_amount': 'Сумма кредита',
 

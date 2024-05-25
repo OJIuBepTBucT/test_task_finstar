@@ -20,7 +20,7 @@ class ControllerLoanCalculator extends GetxController {
 
   void checkFormValidity() {
     isFormValid.value =
-        loanAmount.value > 0 && interestRate.value > 0 && loanTerm.value > 0;
+        loanAmount.value > 0 && interestRate.value > 0 && loanTerm.value > 1;
   }
 
   Future<void> calculate() async {

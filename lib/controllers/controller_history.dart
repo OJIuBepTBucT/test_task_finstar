@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
+import 'package:test_task_finstar/controllers/controller_loan_calculator.dart';
 import 'package:test_task_finstar/model/model_loan_result_history.dart';
 
 class HistoryController extends GetxController {

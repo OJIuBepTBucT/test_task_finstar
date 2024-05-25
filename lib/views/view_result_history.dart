@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:test_task_finstar/controller/controller_history.dart';
+import 'package:test_task_finstar/controllers/controller_history.dart';
 
 class HistoryView extends StatelessWidget {
   final HistoryController historyController = Get.find();
+
+  HistoryView({super.key});
 
   @override
   Widget build(BuildContext context) {

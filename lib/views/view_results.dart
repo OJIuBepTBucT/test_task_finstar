@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:get/get.dart';
 
-import 'package:test_task_finstar/controller/controller_loan_calculator.dart';
+import 'package:test_task_finstar/controllers/controller_loan_calculator.dart';
 
 import 'package:test_task_finstar/views/loan_chart.dart';
 
