@@ -9,11 +9,11 @@ class TranslationsWords extends Translations {
 
       'loan_calculator': 'Loan Calculator',
 
-      'loan_amount': 'Loan Amount',
+      'loan_amount': 'Loan Amount (over 500 rubles)',
 
-      'interest_rate': 'Interest Rate (%)',
+      'interest_rate': 'Interest Rate (over 2% and max 70%)',
 
-      'loan_term': 'Loan Term (months)',
+      'loan_term': 'Loan Term (over 2 months and max 500)',
 
       'annuity_payment': 'Annuity Payment',
 
@@ -33,7 +33,7 @@ class TranslationsWords extends Translations {
 
       'payment_schedule': 'Payment Schedule',
 
-      'interest_diagram': 'Interest Diagram',
+      'payment_chart': 'Payment Chart',
 
       'no_history': 'No history available',
 
@@ -69,11 +69,11 @@ class TranslationsWords extends Translations {
 
       'loan_calculator': 'Кредитный калькулятор',
 
-      'loan_amount': 'Сумма кредита',
+      'loan_amount': 'Сумма кредита (от 500 рублей)',
 
-      'interest_rate': 'Процентная ставка (%)',
+      'interest_rate': 'Процентная ставка (от 2% до 70%)',
 
-      'loan_term': 'Срок кредита (месяцы)',
+      'loan_term': 'Срок кредита (от 2 месяцев до 500)',
 
       'annuity_payment': 'Аннуитетный платеж',
 
@@ -93,7 +93,7 @@ class TranslationsWords extends Translations {
 
       'payment_schedule': 'График платежей',
 
-      'interest_diagram': 'Диаграмма выплаты процентов',
+      'payment_chart': 'Диаграмма платежей',
 
       'no_history': 'История отсутствует',
 

@@ -31,13 +31,18 @@ class PaymentDetail {
 }
 
 class LoanResult {
-  final double monthlyPayment;
+  final double monthlyPayment; // Only used for annuity loans
+  final double firstMonthlyPayment; // For differentiated loans
+  final double lastMonthlyPayment; // For differentiated loans
   final double totalPayment;
   final double overpayment;
   final List<PaymentDetail> paymentDetails;
 
   LoanResult({
-    required this.monthlyPayment,
+    this.monthlyPayment = 0.0,
+    this.firstMonthlyPayment = 0.0,
+    this.lastMonthlyPayment = 0.0,
+
     required this.totalPayment,
     required this.overpayment,
     required this.paymentDetails,

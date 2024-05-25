@@ -30,7 +30,7 @@ class ResultsViewState extends State<ResultsView> {
           bottom: TabBar(
             tabs: [
               Tab(text: 'payment_schedule'.tr),
-              Tab(text: 'interest_diagram'.tr),
+              Tab(text: 'payment_chart'.tr),
             ],
           ),
         ),
@@ -52,7 +52,7 @@ class ResultsViewState extends State<ResultsView> {
                   result.paymentDetails.first.year) + 1;
 
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(25.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -116,26 +116,29 @@ class ResultsViewState extends State<ResultsView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-                'monthly_payment'.tr,
-                style: Theme.of(context).textTheme.bodyLarge
-            ),
-            Text(result.monthlyPayment.toStringAsFixed(2), style: textStyle),
+            Text('monthly_payment'.tr, style:
+            Theme.of(context).textTheme.bodyLarge),
+            if (result.firstMonthlyPayment !=
+                0.0 && result.lastMonthlyPayment != 0.0)
+              Text(
+                '${result.firstMonthlyPayment.toStringAsFixed(2)} - '
+                    '${result.lastMonthlyPayment.toStringAsFixed(2)}',
+                style: textStyle,
+              )
+            else
+              Text(result.monthlyPayment.toStringAsFixed(2), style: textStyle),
 
             const SizedBox(height: 16),
 
-            Text(
-                'total_payment'.tr,
-                style: Theme.of(context).textTheme.bodyLarge
-            ),
+            Text('total_payment'.tr, style:
+            Theme.of(context).textTheme.bodyLarge),
+
             Text(result.totalPayment.toStringAsFixed(2), style: textStyle),
 
             const SizedBox(height: 16),
 
-            Text(
-                'overpayment'.tr,
-                style: Theme.of(context).textTheme.bodyLarge
-            ),
+            Text('overpayment'.tr, style:
+            Theme.of(context).textTheme.bodyLarge),
             Text(result.overpayment.toStringAsFixed(2), style: textStyle),
 
             const SizedBox(height: 16),
@@ -148,24 +151,17 @@ class ResultsViewState extends State<ResultsView> {
 
                   return Card(
                     child: ListTile(
-                      title: Text(
-                          "${'month'.tr}: ${detail.month}",
-                          style: textStyle
-                      ),
+                      title: Text("${detail.month}.${detail.year}",
+                          style: textStyle),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-
                         children: [
-                          Text(
-                              "${'principal'.tr}: "
-                              "${detail.principal.toStringAsFixed(2)}",
-                              style: textStyle
-                          ),
-                          Text(
-                              "${'interest'.tr}: "
-                              "${detail.interest.toStringAsFixed(2)}",
-                              style: textStyle
-                          ),
+                          Text("${'principal'.tr}:"
+                              " ${detail.principal.toStringAsFixed(2)}",
+                              style: textStyle),
+                          Text("${'interest'.tr}:"
+                              " ${detail.interest.toStringAsFixed(2)}",
+                              style: textStyle),
                         ],
                       ),
                     ),

@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
+
 import 'package:get/get.dart';
+
 import 'package:test_task_finstar/controllers/controller_history.dart';
+
 import 'package:test_task_finstar/controllers/controller_loan_calculator.dart';
+
 import 'package:flutter/services.dart';
+
 import 'package:test_task_finstar/model/model_loan_result_history.dart';
 
 class LoanCalculatorView extends StatelessWidget {
-  final ControllerLoanCalculator loanController =
-  Get.put(ControllerLoanCalculator());
+  final ControllerLoanCalculator loanController = Get.put(ControllerLoanCalculator());
   final HistoryController historyController = Get.put(HistoryController());
 
   LoanCalculatorView({super.key});
@@ -106,18 +110,47 @@ class LoanCalculatorView extends StatelessWidget {
   }
 }
 
-class LoanAmountField extends StatelessWidget {
+class LoanAmountField extends StatefulWidget {
   final ControllerLoanCalculator loanController;
-  final TextEditingController loanAmountController = TextEditingController();
+  const LoanAmountField({required this.loanController, super.key});
 
-  LoanAmountField({required this.loanController, super.key});
+  @override
+  LoanAmountFieldState createState() => LoanAmountFieldState();
+}
+
+class LoanAmountFieldState extends State<LoanAmountField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: widget.loanController.loanAmount.value != 0.0
+          ? widget.loanController.loanAmount.value.toStringAsFixed(2)
+          : '',
+    );
+    _controller.addListener(_updateLoanAmount);
+  }
+
+  void _updateLoanAmount() {
+    double loanAmount = double.tryParse(_controller.text) ?? 0.0;
+    widget.loanController.loanAmount.value = loanAmount;
+    widget.loanController.checkFormValidity();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_updateLoanAmount);
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.bodyMedium!;
 
     return TextField(
-      controller: loanAmountController,
+      controller: _controller,
       decoration: InputDecoration(
         labelText: 'loan_amount'.tr,
         border: OutlineInputBorder(
@@ -133,28 +166,59 @@ class LoanAmountField extends StatelessWidget {
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(11),
       ],
-      onChanged: (value) {
-        double loanAmount = double.tryParse(value) ?? 0.0;
-        loanController.loanAmount.value = loanAmount;
-        loanController.checkFormValidity();
-      },
       style: textStyle,
     );
   }
 }
 
-class InterestRateField extends StatelessWidget {
+class InterestRateField extends StatefulWidget {
   final ControllerLoanCalculator loanController;
-  final TextEditingController interestRateController = TextEditingController();
+  const InterestRateField({required this.loanController, super.key});
 
-  InterestRateField({required this.loanController, super.key});
+  @override
+  InterestRateFieldState createState() => InterestRateFieldState();
+}
+
+class InterestRateFieldState extends State<InterestRateField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: widget.loanController.interestRate.value != 0.0
+          ? widget.loanController.interestRate.value.toStringAsFixed(2)
+          : '',
+    );
+    _controller.addListener(_updateInterestRate);
+  }
+
+  void _updateInterestRate() {
+    double interestRate = double.tryParse(_controller.text) ?? 0.0;
+    if (interestRate > 70) {
+      interestRate = 70;
+      _controller.text = '70';
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length),
+      );
+    }
+    widget.loanController.interestRate.value = interestRate;
+    widget.loanController.checkFormValidity();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_updateInterestRate);
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.bodyMedium!;
 
     return TextField(
-      controller: interestRateController,
+      controller: _controller,
       decoration: InputDecoration(
         labelText: 'interest_rate'.tr,
         border: OutlineInputBorder(
@@ -170,34 +234,59 @@ class InterestRateField extends StatelessWidget {
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(2),
       ],
-      onChanged: (value) {
-        double interestRate = double.tryParse(value) ?? 0.0;
-        if (interestRate > 70) {
-          interestRate = 70;
-          interestRateController.text = '70';
-          interestRateController.selection = TextSelection.fromPosition(
-            TextPosition(offset: interestRateController.text.length),
-          );
-        }
-        loanController.interestRate.value = interestRate;
-        loanController.checkFormValidity();
-      },
       style: textStyle,
     );
   }
 }
 
-class LoanTermField extends StatelessWidget {
+class LoanTermField extends StatefulWidget {
   final ControllerLoanCalculator loanController;
-  final TextEditingController loanTermController = TextEditingController();
+  const LoanTermField({required this.loanController, super.key});
 
-  LoanTermField({required this.loanController, super.key});
+  @override
+  LoanTermFieldState createState() => LoanTermFieldState();
+}
+
+class LoanTermFieldState extends State<LoanTermField> {
+  late TextEditingController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController(
+      text: widget.loanController.loanTerm.value != 0
+          ? widget.loanController.loanTerm.value.toString()
+          : '',
+    );
+    _controller.addListener(_updateLoanTerm);
+  }
+
+  void _updateLoanTerm() {
+    int loanTerm = int.tryParse(_controller.text) ?? 0;
+    if (loanTerm > 500) {
+      loanTerm = 500;
+      _controller.text = '500';
+      _controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: _controller.text.length),
+      );
+    }
+    widget.loanController.loanTerm.value = loanTerm;
+    widget.loanController.checkFormValidity();
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_updateLoanTerm);
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final textStyle = Theme.of(context).textTheme.bodyMedium!;
+
     return TextField(
-      controller: loanTermController,
+      controller: _controller,
       decoration: InputDecoration(
         labelText: 'loan_term'.tr,
         border: OutlineInputBorder(
@@ -212,21 +301,9 @@ class LoanTermField extends StatelessWidget {
       inputFormatters: [
         FilteringTextInputFormatter.digitsOnly,
         LengthLimitingTextInputFormatter(3),
+
       ],
-      onChanged: (value) {
-        int loanTerm = int.tryParse(value) ?? 0;
 
-        if (loanTerm > 500) {
-          loanTerm = 500;
-          loanTermController.text = '500';
-          loanTermController.selection = TextSelection.fromPosition(
-            TextPosition(offset: loanTermController.text.length),
-          );
-        }
-
-        loanController.loanTerm.value = loanTerm;
-        loanController.checkFormValidity();
-      },
       style: textStyle,
     );
   }
@@ -234,7 +311,6 @@ class LoanTermField extends StatelessWidget {
 
 class AnnuityCheckbox extends StatelessWidget {
   final ControllerLoanCalculator loanController;
-
   const AnnuityCheckbox({required this.loanController, super.key});
 
   @override
@@ -263,9 +339,10 @@ class CalculateButton extends StatelessWidget {
   final HistoryController historyController;
 
   const CalculateButton({
-        required this.loanController, required this.historyController,
-        super.key
-      });
+    required this.loanController,
+    required this.historyController,
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

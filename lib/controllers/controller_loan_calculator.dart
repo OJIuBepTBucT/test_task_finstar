@@ -20,7 +20,8 @@ class ControllerLoanCalculator extends GetxController {
 
   void checkFormValidity() {
     isFormValid.value =
-        loanAmount.value > 0 && interestRate.value > 0 && loanTerm.value > 1;
+        loanAmount.value >= 500 && interestRate.value >= 2 &&
+            loanTerm.value > 1;
   }
 
   Future<void> calculate() async {
@@ -65,24 +66,24 @@ class ControllerLoanCalculator extends GetxController {
       final r = message[2] as double;
       final n = message[3] as int;
       final isAnnuity = message[4] as bool;
-
       List<PaymentDetail> paymentDetails = [];
       LoanResult loanResult;
-
       final currentDate = DateTime.now();
       final currentYear = currentDate.year;
       final currentMonth = currentDate.month;
+      int startYear = currentMonth == 12 ? currentYear + 1 : currentYear;
+      int startMonth = currentMonth == 12 ? 1 : currentMonth + 1;
 
       if (isAnnuity) {
         // Annuity payment calculation
         final A = (P * r) / (1 - pow(1 + r, -n));
         final totalPayment = A * n;
         final overpayment = totalPayment - P;
-
         double remainingPrincipal = P;
+
         for (int i = 0; i < n; i++) {
-          int year = currentYear + ((currentMonth + i - 1) ~/ 12);
-          int month = ((currentMonth + i - 1) % 12) + 1;
+          int year = startYear + ((startMonth + i - 1) ~/ 12);
+          int month = ((startMonth + i - 1) % 12) + 1;
           double interestPayment = remainingPrincipal * r;
           double principalPayment = A - interestPayment;
           remainingPrincipal -= principalPayment;
@@ -109,8 +110,8 @@ class ControllerLoanCalculator extends GetxController {
         final overpayment = totalPayment - P;
 
         for (int i = 0; i < n; i++) {
-          int year = currentYear + ((currentMonth + i - 1) ~/ 12);
-          int month = ((currentMonth + i - 1) % 12) + 1;
+          int year = startYear + ((startMonth + i - 1) ~/ 12);
+          int month = ((startMonth + i - 1) % 12) + 1;
           double interestPayment = remainingPrincipal * r;
           remainingPrincipal -= principalPayment;
           paymentDetails.add(PaymentDetail(
@@ -121,7 +122,8 @@ class ControllerLoanCalculator extends GetxController {
           ));
         }
         loanResult = LoanResult(
-          monthlyPayment: firstMonthlyPayment,
+          firstMonthlyPayment: firstMonthlyPayment,
+          lastMonthlyPayment: lastMonthlyPayment,
           totalPayment: totalPayment,
           overpayment: overpayment,
           paymentDetails: paymentDetails,
